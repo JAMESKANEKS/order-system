@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Orders</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body { padding: 20px; }
+  h1 { text-align: center; margin-bottom: 20px; }
+  .order-card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f9f9f9;
+  }
+  .order-card h2 {
+      color: orange;
+      margin-bottom: 10px;
+  }
+  .order-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+  }
+  .order-card button {
+      margin-top: 10px;
+      padding: 10px 10px;
+      border: none;
+      background-color: green;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+
+  }
+</style>
+</head>
+<body>
+
+<h1>All Orders</h1>
+<h1 style="display:flex; justify-content: space-between; align-items: center;">
+  All Orders
+  <button onclick="window.location.href='index.html'" style="padding:10px 10px; border:none; background-color:orange; color:white; border-radius:5px; cursor:pointer;">
+    Back to Menu
+  </button>
+</h1>
+
+<div id="orders-container"></div>
+
+<script type="module">
+// Simple admin access check
+if(localStorage.getItem("isAdmin") !== "true") {
+  alert("Access denied! Please login as admin.");
+  window.location.href = "admin-login.html";
+}
+
+  import { getDatabase, ref, get, child, remove, set } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdwCFv4lzgNM8dAMu87CSO6ByCr5ypbH0",
+    authDomain: "order-system-836c6.firebaseapp.com",
+    databaseURL: "https://order-system-836c6-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "order-system-836c6",
+    storageBucket: "order-system-836c6.firebasestorage.app",
+    messagingSenderId: "364301147744",
+    appId: "1:364301147744:web:cb381f3a602108d4cbed05",
+    measurementId: "G-KWZPKDETBB"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const ordersContainer = document.getElementById("orders-container");
+
+  async function loadAllOrders() {
+    const snapshot = await get(child(ref(db), "orderHistory"));
+    const data = snapshot.val();
+
+    ordersContainer.innerHTML = "";
+
+    if (!data) {
+      ordersContainer.innerHTML = "<p>No orders yet.</p>";
+      return;
+    }
+
+    Object.keys(data).forEach(orderNumber => {
+      const order = data[orderNumber];
+
+      const card = document.createElement("div");
+      card.classList.add("order-card");
+
+      let html = `<h2>Order #${orderNumber}</h2><div>Items:</div>`;
+      let subtotal = 0;
+
+      Object.keys(order).forEach(itemName => {
+        const item = order[itemName];
+        subtotal += item.qty * item.price;
+        html += `<div class="order-item">
+                    <span>${itemName}</span>
+                    <span>Qty: ${item.qty}</span>
+                 </div>`;
+      });
+
+      html += `<div><strong>Subtotal: P${subtotal}</strong></div>`;
+      html += `<button data-order="${orderNumber}">Mark as Completed</button>`;
+
+      card.innerHTML = html;
+      ordersContainer.appendChild(card);
+    });
+
+    // Add button listeners
+  // Add button listeners
+document.querySelectorAll(".order-card button").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const orderNumber = btn.dataset.order;
+    if (!orderNumber) return;
+
+    // Confirmation before marking completed
+    const confirmed = confirm(`Are you sure you want to mark Order #${orderNumber} as completed?`);
+    if (!confirmed) return;
+
+    // Move order to completedOrders
+    const orderData = (await get(child(ref(db), `orderHistory/${orderNumber}`))).val();
+    if (orderData) {
+      await set(ref(db, `completedOrders/${orderNumber}`), orderData);
+      await remove(ref(db, `orderHistory/${orderNumber}`));
+      loadAllOrders();
+    }
+  });
+});
+
+  }
+
+  loadAllOrders();
+</script>
+</body>
+</html>

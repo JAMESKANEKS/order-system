@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receipt</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="images/Group 3.png" alt="logo">
+    <h1>Order <span>Receipt</span></h1>
+  </div>
+  <a href="index.html"><button>Back to Menu</button></a>
+</header>
+
+<section style="padding:20px; text-align:center;">
+  <h2>Thank you for your order!</h2>
+  <p>Your Order Number is:</p>
+  <h1 id="order-number" style="color:orange;"></h1>
+</section>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const orderNumber = params.get('order');
+  document.getElementById('order-number').textContent = orderNumber || "Unknown";
+</script>
+
+</body>
+</html>
