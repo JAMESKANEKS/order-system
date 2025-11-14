@@ -169,3 +169,7 @@ header a button {
     border-radius: 10px;
     cursor: pointer;
 }
+
+.copy {
+    margin: 10px 0;
+}
