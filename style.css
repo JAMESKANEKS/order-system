@@ -172,4 +172,6 @@ header a button {
 
 .copy {
     margin: 10px 0;
+    font-weight: bold;
+    color: orange;
 }
