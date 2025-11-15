@@ -44,6 +44,21 @@
   </div>
   <div class="copy"><p>Made by: James Francis Rodriguez</p></div>
 </div>
+<script>
+    const boxes = document.querySelectorAll('.container')
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+
+  }, {threshold: 0.2});
+
+  boxes.forEach(box => observer.observe(box));
+</script>
 
 <script type="module" src="firebase.js"></script>
 <script type="module" src="orders.js"></script>
